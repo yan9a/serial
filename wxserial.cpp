@@ -26,7 +26,9 @@
 #include <wx/numdlg.h>
 // ----------------------------------------------------------------------------
 // private classes
-#include"Serial.h"
+#include"ceSerial.h"
+using namespace std;
+using namespace ce;
 // ----------------------------------------------------------------------------
 
 // Define a new application type, each program should derive a class from wxApp
@@ -50,7 +52,7 @@ public:
     MyFrame(const wxString& title);
 	wxButton *btnSend;
 	wxTextCtrl *txtSend;
-	Serial com;
+	ceSerial com;
 	wxTimer m_timer;
 	wxTextCtrl *txtRx;
 	wxCheckBox *chkRTS;
