@@ -14,7 +14,7 @@
 #define CESERIAL_H
 #include <string>
 
-#if defined(_WIN64) || defined(__WIN32__) || defined(_WIN32) || defined(WIN32) || defined(__WINDOWS__) || defined(__TOS_WIN__)
+#if defined(_WIN64) || defined(__WIN32__) || defined(_WIN32) || defined(WIN32) || defined(__WINDOWS__) || defined(__TOS_WIN__) || defined(__CYGWIN__)
     #define ceWINDOWS 
 #elif defined(unix) || defined(__unix) || defined(__unix__)
     #define ceLINUX
