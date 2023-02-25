@@ -1,6 +1,6 @@
 # Using Serial Port with C++
 
-Cross-platform Serial port (Com port) programming in C++ with wxWidgets for Windows and Linux
+Cross-platform Serial port (Com port) programming in C++ for Windows and Linux
 
 
 * ceSerial.h : the header of the serial class library to include
