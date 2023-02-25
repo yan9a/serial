@@ -11,8 +11,8 @@ using namespace ce;
 
 int main()
 {
-#ifdef ceWINDOWS
-	ceSerial com("\\\\.\\COM1",9600,8,'N',1); // Windows
+#ifdef CE_WINDOWS
+	ceSerial com("\\\\.\\COM4",9600,8,'N',1); // Windows
 #else
 	ceSerial com("/dev/ttyS0",9600,8,'N',1); // Linux
 #endif

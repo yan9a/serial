@@ -287,7 +287,7 @@ void MyFrame::SelPort(wxCommandEvent& WXUNUSED(event))
 		wxString device = wxGetTextFromUser(wxT("Enter the port"), wxT("Set Port"), cdev);
 		string str = device.ToStdString();
 		if (str.length() > 0) {
-			com.SetPort(str);
+			com.SetPortName(str);
 		}
 
         txtRx->AppendText(wxString::Format(wxT("Port: %s\n"), com.GetPort()));

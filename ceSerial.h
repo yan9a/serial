@@ -15,25 +15,27 @@
 #include <string>
 
 #if defined(_WIN64) || defined(__WIN32__) || defined(_WIN32) || defined(WIN32) || defined(__WINDOWS__) || defined(__TOS_WIN__) || defined(__CYGWIN__)
-    #define ceWINDOWS 
+    #define CE_WINDOWS 
 #elif defined(unix) || defined(__unix) || defined(__unix__)
-    #define ceLINUX
+    #define CE_LINUX
 #endif
 
-#ifdef ceWINDOWS
+#ifdef CE_WINDOWS
 	#include <windows.h>
 #endif
 
 namespace ce {
 
 class ceSerial {
+private:
 	char rxchar;
 	std::string port;
 	long baud;
 	long dsize;
 	char parity;
 	float stopbits;
-#ifdef ceWINDOWS
+	bool stdbaud;
+#ifdef CE_WINDOWS
     HANDLE hComm; //handle
 	OVERLAPPED osReader;
 	OVERLAPPED osWrite;
@@ -60,7 +62,7 @@ public:
 	bool GetRI(bool& success);
 	bool GetCD(bool& success);
 	bool IsOpened();
-	void SetPort(std::string Port);
+	void SetPortName(std::string Port); 
 	std::string GetPort();
 	void SetBaudRate(long baudrate);
 	long GetBaudRate();
