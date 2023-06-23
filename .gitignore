@@ -43,5 +43,8 @@ x64/
 *.vcxproj.user
 Testing/
 
-conserial
-wxserial
+test
+test_gui
+
+*.pdb
+*.ilk

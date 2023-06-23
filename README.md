@@ -1,12 +1,12 @@
-# Using Serial Port with C++
+# Simple to use serial port library in C++
 
-Cross-platform Serial port (Com port) programming in C++ for Windows and Linux
+Cross-platform Serial port (Com port) C++ library for Windows, Mac and Linux.
+Just need to include a single header file 'ceSerial.h' to use it.
 
 
-* ceSerial.h : the header of the serial class library to include
-* ceSerial.cpp : the implementation of the serial class library
-* conserial.cpp : a simple console example program that uses 'ceSerial' class library
-* wxserial.cpp : a wxWidgets GUI example program using serial port
+* ceSerial.h : the implementation of the serial class library in a single header file
+* test.cpp : a simple console example program 
+* test_gui.cpp : a wxWidgets GUI example program using serial port
 
 
 The explanation and examples can be found at
@@ -16,31 +16,31 @@ The explanation and examples can be found at
 
 
 
-To build and run console example, conserial.cpp, on Linux
+To build and run console example, test.cpp, on Linux
 
 ```
- $ g++ conserial.cpp ceSerial.cpp -o conserial -std=c++11
+ $ g++ test.cpp -o test -std=c++11
+
+ $ sudo ./test
+```
+
+
+To build and run console example, test.cpp, on Windows
+
+```
+ g++ test.cpp -o test.exe -std=c++11
  
- $ sudo ./conserial
-```
-
-
-To build and run console example, conserial.cpp, on Windows
+ .\test.exe
 
 ```
- g++ conserial.cpp ceSerial.cpp -o conserial.exe -std=c++11
+
+
+To build and run wxWidgets example, test_gui.cpp, on Linux
+
+```
+ $ g++ test_gui.cpp `wx-config --cxxflags --libs` -o test_gui -std=c++11
  
- .\conserial.exe
-
-```
-
-
-To build and run wxWidgets example, wxserial.cpp, on Linux
-
-```
- $ g++ wxserial.cpp ceSerial.cpp  `wx-config --cxxflags --libs` -o wxserial -std=c++11 -DNDEBUG
- 
- $ sudo ./wxserial
+ $ sudo ./test_gui
 
 ```
 
