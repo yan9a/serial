@@ -27,7 +27,7 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: g++ conserial.cpp ceSerial.cpp -o conserial -std=c++11
+      run: g++ test.cpp -o test -std=c++11
 
     #- name: Test
       #working-directory: ${{github.workspace}}/build
