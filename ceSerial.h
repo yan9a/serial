@@ -86,8 +86,9 @@ public:
 	#include <linux/serial.h>
 #endif
 
+#ifdef CE_SERIAL_IMPLEMENTATION
 
-void ceSerial::Delay(unsigned long ms){
+void ceSerial::Delay(unsigned long ms) {
 #ifdef CE_WINDOWS
 	Sleep(ms);
 #else
@@ -105,8 +106,7 @@ ceSerial::ceSerial() :
 
 }
 
-ceSerial::ceSerial(std::string Device, long BaudRate,long DataSize,char ParityType,float NStopBits):stdbaud(true)
-{
+ceSerial::ceSerial(std::string Device, long BaudRate,long DataSize,char ParityType,float NStopBits):stdbaud(true) {
 #ifdef CE_WINDOWS
 	hComm = INVALID_HANDLE_VALUE;
 #else
@@ -119,8 +119,7 @@ ceSerial::ceSerial(std::string Device, long BaudRate,long DataSize,char ParityTy
 	SetPortName(Device);
 }
 
-ceSerial::~ceSerial()
-{
+ceSerial::~ceSerial() {
 	Close();
 }
 
@@ -197,8 +196,7 @@ long ceSerial::GetBaudRate() {
 	return baud;
 }
 
-long ceSerial::Open()
-{
+long ceSerial::Open() {
 	if (IsOpened()) return 0;
 #ifdef UNICODE
 	wstring wtext(port.begin(),port.end());
@@ -272,8 +270,7 @@ long ceSerial::Open()
 	return 0;
 }
 
-void ceSerial::Close()
-{
+void ceSerial::Close() {
 	if (IsOpened())
 	{
 		SetCommTimeouts(hComm, &timeouts_ori);
@@ -284,16 +281,12 @@ void ceSerial::Close()
 	}
 }
 
-bool ceSerial::IsOpened()
-{
+bool ceSerial::IsOpened() {
 	if(hComm == INVALID_HANDLE_VALUE) return false;
 	else return true;
 }
 
-
-
-bool ceSerial::Write(char *data)
-{
+bool ceSerial::Write(char *data) {
 	if (!IsOpened()) {
 		return false;
 	}
@@ -316,8 +309,7 @@ bool ceSerial::Write(char *data)
 	return fRes;
 }
 
-bool ceSerial::Write(char *data,long n)
-{
+bool ceSerial::Write(char *data,long n) {
 	if (!IsOpened()) {
 		return false;
 	}
@@ -339,16 +331,14 @@ bool ceSerial::Write(char *data,long n)
 	return fRes;
 }
 
-bool ceSerial::WriteChar(char ch)
-{
+bool ceSerial::WriteChar(char ch) {
 	char s[2];
 	s[0]=ch;
 	s[1]=0;//null terminated
 	return Write(s);
 }
 
-char ceSerial::ReadChar(bool& success)
-{
+char ceSerial::ReadChar(bool& success) {
 	success = false;
 	if (!IsOpened()) {return 0;}
 
@@ -394,8 +384,7 @@ char ceSerial::ReadChar(bool& success)
 	return rxchar;
 }
 
-bool ceSerial::SetRTS(bool value)
-{
+bool ceSerial::SetRTS(bool value) {
 	bool r = false;
 	if (IsOpened()) {
 		if (value) {
@@ -408,8 +397,7 @@ bool ceSerial::SetRTS(bool value)
 	return r;
 }
 
-bool ceSerial::SetDTR(bool value)
-{
+bool ceSerial::SetDTR(bool value) {
 	bool r = false;
 	if (IsOpened()) {
 		if (value) {
@@ -422,8 +410,7 @@ bool ceSerial::SetDTR(bool value)
 	return r;
 }
 
-bool ceSerial::GetCTS(bool& success)
-{
+bool ceSerial::GetCTS(bool& success) {
 	success = false;
 	bool r = false;
 	if (IsOpened()) {
@@ -436,8 +423,7 @@ bool ceSerial::GetCTS(bool& success)
 	return r;
 }
 
-bool ceSerial::GetDSR(bool& success)
-{
+bool ceSerial::GetDSR(bool& success) {
 	success = false;
 	bool r = false;
 	if (IsOpened()) {
@@ -450,8 +436,7 @@ bool ceSerial::GetDSR(bool& success)
 	return r;
 }
 
-bool ceSerial::GetRI(bool& success)
-{
+bool ceSerial::GetRI(bool& success) {
 	success = false;
 	bool r = false;
 	if (IsOpened()) {
@@ -464,8 +449,7 @@ bool ceSerial::GetRI(bool& success)
 	return r;
 }
 
-bool ceSerial::GetCD(bool& success)
-{
+bool ceSerial::GetCD(bool& success) {
 	success = false;
 	bool r = false;
 	if (IsOpened()) {
@@ -550,8 +534,7 @@ void ceSerial::Close() {
 	fd=-1;
 }
 
-bool ceSerial::IsOpened()
-{
+bool ceSerial::IsOpened() {
 	if(fd== (-1)) return false;
 	else return true;
 }
@@ -585,16 +568,15 @@ void ceSerial::SetBaudRate(long baudrate) {
 long ceSerial::GetBaudRate() {
 	return baud;
 }
-char ceSerial::ReadChar(bool& success)
-{
+
+char ceSerial::ReadChar(bool& success) {
 	success=false;
 	if (!IsOpened()) {return 0;	}
 	success=read(fd, &rxchar, 1)==1;
 	return rxchar;
 }
 
-bool ceSerial::Write(char *data)
-{
+bool ceSerial::Write(char *data) {
 	if (!IsOpened()) {return false;	}
 	long n = strlen(data);
 	if (n < 0) n = 0;
@@ -602,16 +584,14 @@ bool ceSerial::Write(char *data)
 	return (write(fd, data, n)==n);
 }
 
-bool ceSerial::Write(char *data,long n)
-{
+bool ceSerial::Write(char *data,long n) {
 	if (!IsOpened()) {return false;	}
 	if (n < 0) n = 0;
 	else if(n > 1024) n = 1024;
 	return (write(fd, data, n)==n);
 }
 
-bool ceSerial::WriteChar(char ch)
-{
+bool ceSerial::WriteChar(char ch) {
 	char s[2];
 	s[0]=ch;
 	s[1]=0;//null terminated
@@ -670,6 +650,8 @@ bool ceSerial::GetCD(bool& success) {
 	return ((status & TIOCM_CD) != 0);
 }
 #endif
+
+#endif // CE_SERIAL_IMPLEMENTATION
 //-----------------------------------------------------------------------------
 
 #endif // CESERIAL_H
