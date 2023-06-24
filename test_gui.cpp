@@ -26,6 +26,7 @@
 #include <wx/numdlg.h>
 // ----------------------------------------------------------------------------
 // private classes
+#define CE_SERIAL_IMPLEMENTATION
 #include"ceSerial.h"
 using namespace std;
 // ----------------------------------------------------------------------------

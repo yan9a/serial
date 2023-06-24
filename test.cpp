@@ -5,6 +5,7 @@
 // Copyright (c) 2018 Yan Naing Aye
 
 #include <stdio.h>
+#define CE_SERIAL_IMPLEMENTATION
 #include "ceSerial.h"
 using namespace std;
 
