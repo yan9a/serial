@@ -28,6 +28,9 @@
 #endif
 
 class ceSerial {
+public:
+	enum FlowControl { FlowControl_None, FlowControl_Software, FlowControl_Hardware };
+
 private:
 	char rxchar;
 	std::string port;
@@ -36,6 +39,7 @@ private:
 	char parity;
 	float stopbits;
 	bool stdbaud;
+	FlowControl flowControl;
 #ifdef CE_WINDOWS
     HANDLE hComm; //handle
 	OVERLAPPED osReader;
@@ -73,6 +77,8 @@ public:
 	char GetParity();
 	void SetStopBits(float nbits);
 	float GetStopBits();
+	void SetFlowControl(FlowControl flowControl);
+	FlowControl GetFlowControl();
 };
 
 //-----------------------------------------------------------------------------
@@ -117,6 +123,7 @@ ceSerial::ceSerial(std::string Device, long BaudRate,long DataSize,char ParityTy
 	SetParity(ParityType);
 	SetStopBits(NStopBits);
 	SetPortName(Device);
+	SetFlowControl(FlowControl_None);
 }
 
 ceSerial::~ceSerial() {
@@ -165,6 +172,16 @@ void ceSerial::SetStopBits(float nbits) {
 
 float ceSerial::GetStopBits() {
 	return stopbits;
+}
+
+void ceSerial::SetFlowControl(ceSerial::FlowControl flow)
+{
+	flowControl = flow;
+}
+
+ceSerial::FlowControl ceSerial::GetFlowControl()
+{
+	return flowControl;
 }
 
 
@@ -236,12 +253,41 @@ long ceSerial::Open() {
 	else if (stopbits == 1.5) dcb1.StopBits = ONE5STOPBITS;
     else dcb1.StopBits = ONESTOPBIT;
 
-    dcb1.fOutxCtsFlow = false;
-    dcb1.fOutxDsrFlow = false;
-    dcb1.fOutX = false;
-    dcb1.fDtrControl = DTR_CONTROL_DISABLE;
-    dcb1.fRtsControl = RTS_CONTROL_DISABLE;
-    fSuccess = SetCommState(hComm, &dcb1);
+	switch (flowControl)
+	{
+		default:
+			// fall through to 'None'
+			__fallthrough;
+
+		case FlowControl_None:
+			dcb1.fOutxCtsFlow = false;
+			dcb1.fOutxDsrFlow = false;
+			dcb1.fDtrControl = DTR_CONTROL_DISABLE;
+			dcb1.fRtsControl = RTS_CONTROL_DISABLE;
+			dcb1.fInX = false;
+			dcb1.fOutX = false;
+			break;
+
+		case FlowControl_Software:		// XON, XOFF
+			dcb1.fOutxCtsFlow = false;
+			dcb1.fOutxDsrFlow = false;
+			dcb1.fDtrControl = DTR_CONTROL_DISABLE;
+			dcb1.fRtsControl = RTS_CONTROL_DISABLE;
+			dcb1.fInX = true;
+			dcb1.fOutX = true;
+			break;
+
+		case FlowControl_Hardware:		// RTS, CTS
+			dcb1.fOutxCtsFlow = true;
+			dcb1.fOutxDsrFlow = false;
+			dcb1.fDtrControl = DTR_CONTROL_DISABLE;
+			dcb1.fRtsControl = RTS_CONTROL_HANDSHAKE;
+			dcb1.fInX = false;
+			dcb1.fOutX = false;
+			break;
+	}
+
+	fSuccess = SetCommState(hComm, &dcb1);
     this->Delay(60);
     if (!fSuccess) {return -1;}
 
