@@ -227,15 +227,15 @@ long ceSerial::Open() {
         OPEN_EXISTING,
         FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED,
         0);
-    if (hComm == INVALID_HANDLE_VALUE) {return -1;}
+    if (hComm == INVALID_HANDLE_VALUE) {return GetLastError();}
 
-    if (PurgeComm(hComm, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR) == 0) {return -1;}//purge
+    if (PurgeComm(hComm, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR) == 0) {return GetLastError();}//purge
 
     //get initial state
     DCB dcbOri;
     bool fSuccess;
     fSuccess = GetCommState(hComm, &dcbOri);
-    if (!fSuccess) {return -1;}
+    if (!fSuccess) {return GetLastError();}
 
     DCB dcb1 = dcbOri;
 
@@ -289,30 +289,30 @@ long ceSerial::Open() {
 
 	fSuccess = SetCommState(hComm, &dcb1);
     this->Delay(60);
-    if (!fSuccess) {return -1;}
+    if (!fSuccess) {return GetLastError();}
 
     fSuccess = GetCommState(hComm, &dcb1);
-    if (!fSuccess) {return -1;}
+    if (!fSuccess) {return GetLastError();}
 
     osReader = { 0 };// Create the overlapped event.
     // Must be closed before exiting to avoid a handle leak.
     osReader.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
-    if (osReader.hEvent == NULL) {return -1;}// Error creating overlapped event; abort.
+    if (osReader.hEvent == NULL) {return GetLastError();}// Error creating overlapped event; abort.
     fWaitingOnRead = FALSE;
 
     osWrite = { 0 };
     osWrite.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-    if (osWrite.hEvent == NULL) {return -1;}
+    if (osWrite.hEvent == NULL) {return GetLastError();}
 
-    if (!GetCommTimeouts(hComm, &timeouts_ori)) { return -1; } // Error getting time-outs.
+    if (!GetCommTimeouts(hComm, &timeouts_ori)) { return GetLastError(); } // Error getting time-outs.
     COMMTIMEOUTS timeouts;
     timeouts.ReadIntervalTimeout = 20;
     timeouts.ReadTotalTimeoutMultiplier = 15;
     timeouts.ReadTotalTimeoutConstant = 100;
     timeouts.WriteTotalTimeoutMultiplier = 15;
     timeouts.WriteTotalTimeoutConstant = 100;
-    if (!SetCommTimeouts(hComm, &timeouts)) { return -1;} // Error setting time-outs.
+    if (!SetCommTimeouts(hComm, &timeouts)) { return GetLastError();} // Error setting time-outs.
 	return 0;
 }
 
@@ -535,19 +535,19 @@ long ceSerial::Open(void) {
 
 	fd = open(port.c_str(), O_RDWR | O_NONBLOCK);
 	if (fd == -1) {
-		return -1;
+		return errno;
 	}
 
 	if (!stdbaud) {
 		// serial driver to interpret the value B38400 differently		
 		serinfo.reserved_char[0] = 0;
-		if (ioctl(fd, TIOCGSERIAL, &serinfo) < 0) {	return -1;}
+		if (ioctl(fd, TIOCGSERIAL, &serinfo) < 0) {	return errno;}
 		serinfo.flags &= ~ASYNC_SPD_MASK;
 		serinfo.flags |= ASYNC_SPD_CUST;
 		serinfo.custom_divisor = (serinfo.baud_base + (baud / 2)) / baud;
 		if (serinfo.custom_divisor < 1) serinfo.custom_divisor = 1;
-		if (ioctl(fd, TIOCSSERIAL, &serinfo) < 0) { return -1; }
-		if (ioctl(fd, TIOCGSERIAL, &serinfo) < 0) { return -1; }
+		if (ioctl(fd, TIOCSSERIAL, &serinfo) < 0) { return errno; }
+		if (ioctl(fd, TIOCGSERIAL, &serinfo) < 0) { return errno; }
 		if (serinfo.custom_divisor * baud != serinfo.baud_base) {
 			/*
 			warnx("actual baudrate is %d / %d = %f\n",
