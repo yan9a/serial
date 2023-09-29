@@ -142,6 +142,25 @@ long ceSerial::Open(void) {
 		cfsetospeed(&settings, baud);
 		cfsetispeed(&settings, baud);
 	}	
+
+	switch (flowControl)
+	{
+		default:
+			// fall through to 'None'
+
+		case FlowControl_None:
+			settings.c_cflag &= ~CRTSCTS;
+			break;
+
+		case FlowControl_Software:		// XON, XOFF
+			settings.c_cflag |= IXON | IXOFF | IXANY;
+			break;
+
+		case FlowControl_Hardware:		// RTS, CTS
+			settings.c_cflag |= CRTSCTS;
+			break;
+	}
+
 	tcsetattr(fd, TCSANOW, &settings);
 	int flags = fcntl(fd, F_GETFL, 0);
 	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
@@ -167,27 +186,46 @@ bool ceSerial::IsOpened() {
 
 void ceSerial::SetBaudRate(long baudrate) {
 	stdbaud = true;
-	if (baudrate == 0) baud = B0;
-	else if (baudrate == 50) baud = B50;
-	else if (baudrate == 75) baud = B75;
-	else if (baudrate == 110) baud = B110;
-	else if (baudrate == 134) baud = B134;
-	else if (baudrate == 150) baud = B150;
-	else if (baudrate == 200) baud = B200;
-	else if (baudrate == 300) baud = B300;
-	else if (baudrate == 600) baud = B600;
-	else if (baudrate == 1200) baud = B1200;
-	else if (baudrate == 2400) baud = B2400;
-	else if (baudrate == 4800) baud = B4800;
-	else if (baudrate == 9600) baud = B9600;
-	else if (baudrate == 19200) baud = B19200;
-	else if (baudrate == 38400) baud = B38400;
-	else if (baudrate == 57600) baud = B57600;
-	else if (baudrate == 115200) baud = B115200;
-	else if (baudrate == 230400) baud = B230400;
-	else {
-		baud = baudrate;
-		stdbaud = false;
+
+    switch (baudrate)
+    {
+        case 0: baud = B0; return;
+        case 50: baud = B50; return;
+        case 75: baud = B75; return;
+        case 110: baud = B110; return;
+        case 134: baud = B134; return;
+        case 150: baud = B150; return;
+        case 200: baud = B200; return;
+        case 300: baud = B300; return;
+        case 600: baud = B600; return;
+        case 1200: baud = B1200; return;
+        case 2400: baud = B2400; return;
+        case 4800: baud = B4800; return;
+        case 9600: baud = B9600; return;
+        case 19200: baud = B19200; return;
+        case 38400: baud = B38400; return;
+        case 57600: baud = B57600; return;
+        case 115200: baud = B115200; return;
+        case 230400: baud = B230400; return;
+
+        // Extra output baud rates (not in POSIX).  termios-baud.h
+        case 460800: baud = B460800; return;
+        case 500000: baud = B500000; return;
+        case 576000: baud = B576000; return;
+        case 921600: baud = B921600; return;
+        case 1000000: baud = B1000000; return;
+        case 1152000: baud = B1152000; return;
+        case 1500000: baud = B1500000; return;
+        case 2000000: baud = B2000000; return;
+        case 2500000: baud = B2500000; return;
+        case 3000000: baud = B3000000; return;
+        case 3500000: baud = B3500000; return;
+        case 4000000: baud = B4000000; return;
+        
+        default:
+                baud = baudrate;
+                stdbaud = false;
+                return;
 	}
 }
 
