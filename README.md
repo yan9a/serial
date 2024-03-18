@@ -5,7 +5,7 @@ Just need to include a single header file 'ceSerial.h' to use it.
 
 
 * ceSerial.h : the implementation of the serial class library in a single header file
-* test.cpp : a simple console example program 
+* test_console.cpp : a simple console example program 
 * test_gui.cpp : a wxWidgets GUI example program using serial port
 
 
