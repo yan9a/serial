@@ -1,4 +1,3 @@
-// File: test.cpp
 // Description: Serial (Com port) console program for Windows and Linux
 // WebSite: http://cool-emerald.blogspot.sg/2017/05/serial-port-programming-in-c-with.html
 // MIT License (https://opensource.org/licenses/MIT)

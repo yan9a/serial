@@ -53,9 +53,9 @@ public:
 	long Open(void);//return 0 if success
 	void Close();
 	char ReadChar(bool& success);//return read char if success
-	bool WriteChar(char ch);////return success flag
-	bool Write(char *data);//write null terminated string and return success flag
-	bool Write(char *data,long n);
+	bool WriteChar(const char ch);////return success flag
+	bool Write(const char *data);//write null terminated string and return success flag
+	bool Write(const char *data,long n);
 	bool SetRTS(bool value);//return success flag
 	bool SetDTR(bool value);//return success flag
 	bool GetCTS(bool& success);
@@ -286,7 +286,7 @@ bool ceSerial::IsOpened() {
 	else return true;
 }
 
-bool ceSerial::Write(char *data) {
+bool ceSerial::Write(const char *data) {
 	if (!IsOpened()) {
 		return false;
 	}
@@ -309,7 +309,7 @@ bool ceSerial::Write(char *data) {
 	return fRes;
 }
 
-bool ceSerial::Write(char *data,long n) {
+bool ceSerial::Write(const char *data,long n) {
 	if (!IsOpened()) {
 		return false;
 	}
@@ -331,7 +331,7 @@ bool ceSerial::Write(char *data,long n) {
 	return fRes;
 }
 
-bool ceSerial::WriteChar(char ch) {
+bool ceSerial::WriteChar(const char ch) {
 	char s[2];
 	s[0]=ch;
 	s[1]=0;//null terminated
@@ -576,7 +576,7 @@ char ceSerial::ReadChar(bool& success) {
 	return rxchar;
 }
 
-bool ceSerial::Write(char *data) {
+bool ceSerial::Write(const char *data) {
 	if (!IsOpened()) {return false;	}
 	long n = strlen(data);
 	if (n < 0) n = 0;
@@ -584,14 +584,14 @@ bool ceSerial::Write(char *data) {
 	return (write(fd, data, n)==n);
 }
 
-bool ceSerial::Write(char *data,long n) {
+bool ceSerial::Write(const char *data,long n) {
 	if (!IsOpened()) {return false;	}
 	if (n < 0) n = 0;
 	else if(n > 1024) n = 1024;
 	return (write(fd, data, n)==n);
 }
 
-bool ceSerial::WriteChar(char ch) {
+bool ceSerial::WriteChar(const char ch) {
 	char s[2];
 	s[0]=ch;
 	s[1]=0;//null terminated

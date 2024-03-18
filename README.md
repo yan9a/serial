@@ -16,21 +16,21 @@ The explanation and examples can be found at
 
 
 
-To build and run console example, test.cpp, on Linux
+To build and run console example, test_console.cpp, on Linux
 
 ```
- $ g++ test.cpp -o test -std=c++11
+ $ g++ test_console.cpp -o test_console -std=c++11
 
- $ sudo ./test
+ $ sudo ./test_console
 ```
 
 
-To build and run console example, test.cpp, on Windows
+To build and run console example, test_console.cpp, on Windows
 
 ```
- g++ test.cpp -o test.exe -std=c++11
+ g++ test_console.cpp -o test_console.exe -std=c++11
  
- .\test.exe
+ .\test_console.exe
 
 ```
 

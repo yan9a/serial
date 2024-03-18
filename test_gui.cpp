@@ -1,4 +1,3 @@
-//File: test_gui.cpp
 //Description: Serial communication for wxWidgets
 //WebSite: http://cool-emerald.blogspot.sg/2017/05/serial-port-programming-in-c-with.html
 //MIT License (https://opensource.org/licenses/MIT)
