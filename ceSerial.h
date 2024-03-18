@@ -172,7 +172,7 @@ float ceSerial::GetStopBits() {
 
 void ceSerial::SetBaudRate(long baudrate) {
 	stdbaud = true;
-	if (baudrate == 1100) baud = CBR_110;
+	if (baudrate == 110) baud = CBR_110;
 	else if (baudrate == 300) baud = CBR_300;
 	else if (baudrate == 600) baud = CBR_600;
 	else if (baudrate == 1200) baud = CBR_1200;
@@ -199,7 +199,7 @@ long ceSerial::GetBaudRate() {
 long ceSerial::Open() {
 	if (IsOpened()) return 0;
 #ifdef UNICODE
-	wstring wtext(port.begin(),port.end());
+	std::wstring wtext(port.begin(),port.end());
 #else
 	std::string wtext = port;
 #endif
