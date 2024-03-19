@@ -37,4 +37,4 @@ jobs:
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       # run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
-      run: g++ test.cpp -o test.exe -std=c++11
+      run: g++ test_console.cpp -o test_console.exe -std=c++11

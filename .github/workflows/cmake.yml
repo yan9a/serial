@@ -27,7 +27,7 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: g++ test.cpp -o test -std=c++11
+      run: g++ test_console.cpp -o test_console -std=c++11
 
     #- name: Test
       #working-directory: ${{github.workspace}}/build
