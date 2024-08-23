@@ -40,7 +40,7 @@ To build and run wxWidgets example, test_gui.cpp, on Linux
 ```
  $ cd serialgui
  
- $ g++ test_gui.cpp `wx-config --cxxflags --libs` -o test_gui -std=c++11 -I..
+ $ g++ test_gui.cpp test_frame.cpp `wx-config --cxxflags --libs` -o test_gui -std=c++11 -I..
  
  $ sudo ./test_gui
 
