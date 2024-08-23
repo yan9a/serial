@@ -26,7 +26,7 @@
 // ----------------------------------------------------------------------------
 // private classes
 #define CE_SERIAL_IMPLEMENTATION
-#include"ceSerial.h"
+#include"ceserial.h"
 using namespace std;
 // ----------------------------------------------------------------------------
 
