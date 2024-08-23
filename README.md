@@ -38,7 +38,9 @@ To build and run console example, test_console.cpp, on Windows
 To build and run wxWidgets example, test_gui.cpp, on Linux
 
 ```
- $ g++ test_gui.cpp `wx-config --cxxflags --libs` -o test_gui -std=c++11
+ $ cd serialgui
+ 
+ $ g++ test_gui.cpp `wx-config --cxxflags --libs` -o test_gui -std=c++11 -I..
  
  $ sudo ./test_gui
 
