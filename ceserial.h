@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <cstdint>
 
 #if defined(_WIN64) || defined(__WIN32__) || defined(_WIN32) || defined(WIN32) || defined(__WINDOWS__) || defined(__TOS_WIN__) || defined(__CYGWIN__)
 	#ifndef CE_WINDOWS
@@ -338,7 +339,7 @@ inline bool ceSerial::Write(const char *data,long n) {
 	return fRes;
 }
 
-bool ceSerial::WriteArr(const uint8_t *data,long n) {
+inline bool ceSerial::WriteArr(const uint8_t *data,long n) {
 	if (!IsOpened()) {
 		return false;
 	}
@@ -361,10 +362,7 @@ bool ceSerial::WriteArr(const uint8_t *data,long n) {
 }
 
 inline bool ceSerial::WriteChar(const char ch) {
-	char s[2];
-	s[0]=ch;
-	s[1]=0;//null terminated
-	return Write(s);
+	return Write((char*)&ch, 1);
 }
 
 inline char ceSerial::ReadChar(bool& success) {
@@ -620,7 +618,7 @@ inline bool ceSerial::Write(const char *data,long n) {
 	return (write(fd, data, n)==n);
 }
 
-bool ceSerial::WriteArr(const uint8_t *data,long n) {
+inline bool ceSerial::WriteArr(const uint8_t *data,long n) {
 	if (!IsOpened()) {return false;	}
 	if (n < 0) n = 0;
 	else if(n > 1024) n = 1024;
@@ -628,10 +626,7 @@ bool ceSerial::WriteArr(const uint8_t *data,long n) {
 }
 
 inline bool ceSerial::WriteChar(const char ch) {
-	char s[2];
-	s[0]=ch;
-	s[1]=0;//null terminated
-	return Write(s);
+	return Write((char*)&ch, 1);
 }
 
 inline bool ceSerial::SetRTS(bool value) {
