@@ -59,6 +59,8 @@ public:
 	ceSerial();
 	ceSerial(std::string Device, long BaudRate, long DataSize, char ParityType, float NStopBits);
 	~ceSerial();
+	ceSerial(const ceSerial&) = delete;// owns a handle/fd; copying would double-close it
+	ceSerial& operator=(const ceSerial&) = delete;
 	long Open(void);//return 0 if success
 	void Close();
 	char ReadChar(bool& success);//return read char if success
@@ -220,13 +222,25 @@ inline long ceSerial::Open() {
         0);
     if (hComm == INVALID_HANDLE_VALUE) {return -1;}
 
-    if (PurgeComm(hComm, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR) == 0) {return -1;}//purge
+    osReader = { 0 };
+    osWrite = { 0 };
+    // Close whatever was opened so far and reset hComm; avoids a leaked/stale
+    // handle that would make a later Open() short-circuit via IsOpened().
+    auto fail = [&]() -> long {
+        if (osWrite.hEvent) CloseHandle(osWrite.hEvent);
+        if (osReader.hEvent) CloseHandle(osReader.hEvent);
+        CloseHandle(hComm);
+        hComm = INVALID_HANDLE_VALUE;
+        return -1;
+    };
+
+    if (PurgeComm(hComm, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR) == 0) {return fail();}//purge
 
     //get initial state
     DCB dcbOri;
     bool fSuccess;
     fSuccess = GetCommState(hComm, &dcbOri);
-    if (!fSuccess) {return -1;}
+    if (!fSuccess) {return fail();}
 
     DCB dcb1 = dcbOri;
 
@@ -251,30 +265,28 @@ inline long ceSerial::Open() {
     dcb1.fRtsControl = RTS_CONTROL_DISABLE;
     fSuccess = SetCommState(hComm, &dcb1);
     this->Delay(60);
-    if (!fSuccess) {return -1;}
+    if (!fSuccess) {return fail();}
 
     fSuccess = GetCommState(hComm, &dcb1);
-    if (!fSuccess) {return -1;}
+    if (!fSuccess) {return fail();}
 
-    osReader = { 0 };// Create the overlapped event.
-    // Must be closed before exiting to avoid a handle leak.
+    // Create the overlapped event.
     osReader.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
-    if (osReader.hEvent == NULL) {return -1;}// Error creating overlapped event; abort.
+    if (osReader.hEvent == NULL) {return fail();}// Error creating overlapped event; abort.
     fWaitingOnRead = FALSE;
 
-    osWrite = { 0 };
     osWrite.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-    if (osWrite.hEvent == NULL) {return -1;}
+    if (osWrite.hEvent == NULL) {return fail();}
 
-    if (!GetCommTimeouts(hComm, &timeouts_ori)) { return -1; } // Error getting time-outs.
+    if (!GetCommTimeouts(hComm, &timeouts_ori)) { return fail(); } // Error getting time-outs.
     COMMTIMEOUTS timeouts;
     timeouts.ReadIntervalTimeout = 20;
     timeouts.ReadTotalTimeoutMultiplier = 15;
     timeouts.ReadTotalTimeoutConstant = 100;
     timeouts.WriteTotalTimeoutMultiplier = 15;
     timeouts.WriteTotalTimeoutConstant = 100;
-    if (!SetCommTimeouts(hComm, &timeouts)) { return -1;} // Error setting time-outs.
+    if (!SetCommTimeouts(hComm, &timeouts)) { return fail();} // Error setting time-outs.
 	return 0;
 }
 
@@ -295,7 +307,7 @@ inline bool ceSerial::IsOpened() {
 }
 
 inline bool ceSerial::Write(const char *data) {
-	if (!IsOpened()) {
+	if (!IsOpened() || !data) {
 		return false;
 	}
 	BOOL fRes;
@@ -362,7 +374,7 @@ inline bool ceSerial::WriteArr(const uint8_t *data,long n) {
 }
 
 inline bool ceSerial::WriteChar(const char ch) {
-	return Write((char*)&ch, 1);
+	return Write(&ch, 1);
 }
 
 inline char ceSerial::ReadChar(bool& success) {
@@ -400,7 +412,9 @@ inline char ceSerial::ReadChar(bool& success) {
 			break;
 
 		case WAIT_TIMEOUT:
-			// Operation isn't complete yet.
+			// Operation isn't complete yet; cancel it so a fresh ReadFile can be issued next call.
+			CancelIo(hComm);
+			fWaitingOnRead = FALSE;
 			break;
 
 		default:
@@ -519,16 +533,24 @@ inline long ceSerial::Open(void) {
 		return -1;
 	}
 
+	// Close fd and reset it so a failed Open() doesn't leak it or leave
+	// IsOpened() reporting true.
+	auto fail = [&]() -> long {
+		close(fd);
+		fd = -1;
+		return -1;
+	};
+
 	if (!stdbaud) {
 		// serial driver to interpret the value B38400 differently		
 		serinfo.reserved_char[0] = 0;
-		if (ioctl(fd, TIOCGSERIAL, &serinfo) < 0) {	return -1;}
+		if (ioctl(fd, TIOCGSERIAL, &serinfo) < 0) {	return fail();}
 		serinfo.flags &= ~ASYNC_SPD_MASK;
 		serinfo.flags |= ASYNC_SPD_CUST;
 		serinfo.custom_divisor = (serinfo.baud_base + (baud / 2)) / baud;
 		if (serinfo.custom_divisor < 1) serinfo.custom_divisor = 1;
-		if (ioctl(fd, TIOCSSERIAL, &serinfo) < 0) { return -1; }
-		if (ioctl(fd, TIOCGSERIAL, &serinfo) < 0) { return -1; }
+		if (ioctl(fd, TIOCSSERIAL, &serinfo) < 0) { return fail(); }
+		if (ioctl(fd, TIOCGSERIAL, &serinfo) < 0) { return fail(); }
 		if (serinfo.custom_divisor * baud != serinfo.baud_base) {
 			/*
 			warnx("actual baudrate is %d / %d = %f\n",
@@ -604,7 +626,7 @@ inline char ceSerial::ReadChar(bool& success) {
 }
 
 inline bool ceSerial::Write(const char *data) {
-	if (!IsOpened()) {return false;	}
+	if (!IsOpened() || !data) {return false;	}
 	long n = strlen(data);
 	if (n < 0) n = 0;
 	else if(n > 1024) n = 1024;
@@ -626,7 +648,7 @@ inline bool ceSerial::WriteArr(const uint8_t *data,long n) {
 }
 
 inline bool ceSerial::WriteChar(const char ch) {
-	return Write((char*)&ch, 1);
+	return Write(&ch, 1);
 }
 
 inline bool ceSerial::SetRTS(bool value) {
