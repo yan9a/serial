@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------------
 // private classes
-#include "ceserial.h"
 #include "test_gui.h"
+#include "ceserial.h"
 using namespace std;
 // ----------------------------------------------------------------------------
 // Create a new application object: this macro will allow wxWidgets to create
@@ -20,11 +20,10 @@ IMPLEMENT_APP(MyApp)
 // ----------------------------------------------------------------------------
 
 // 'Main program' equivalent: the program execution "starts" here
-bool MyApp::OnInit()
-{
+bool MyApp::OnInit() {
     // call the base class initialization method, currently it only parses a
     // few common command-line options but it could be do more in the future
-    if ( !wxApp::OnInit() )
+    if (!wxApp::OnInit())
         return false;
 
     // create the main application window
